@@ -38,6 +38,12 @@ class Map_params():
             self.lon += LON_STEP * math.pow(2, 15 - self.z)
         elif event.key == pygame.K_DOWN and self.lat > -85:  # DOWN_ARROW
             self.lon -= LON_STEP * math.pow(2, 15 - self.z)
+        elif event.key == pygame.K_1:
+            self.type = "map"
+        elif event.key == pygame.K_2:
+            self.type = "sat"
+        elif event.key == pygame.K_3:
+            self.type = "sat,skl"
 
 
 def load_map(mp):
