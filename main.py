@@ -1,7 +1,8 @@
 import os
+import math
 import sys
 import pygame
-from pygame import *
+from pygame.locals import *
 import requests
 
 from Samples.business import find_businesses
@@ -10,6 +11,9 @@ from Samples.geocoder import get_coordinates
 from Samples.mapapi_PG import show_map
 
 size = w, h = 600, 450
+LAT_STEP = 0.008
+LON_STEP = 0.002
+
 
 class Map_params():
     def __init__(self):
@@ -26,6 +30,14 @@ class Map_params():
             self.z = min(19, self.z + 1)
         elif event.key == pygame.K_PAGEDOWN:
             self.z = max(1, self.z - 1)
+        elif event.key == pygame.K_LEFT:  # LEFT_ARROW
+            self.lat -= LAT_STEP * math.pow(2, 15 - self.z)
+        elif event.key == pygame.K_RIGHT:  # RIGHT_ARROW
+            self.lat += LAT_STEP * math.pow(2, 15 - self.z)
+        elif event.key == pygame.K_UP and self.lat < 85:  # UP_ARROW
+            self.lon += LON_STEP * math.pow(2, 15 - self.z)
+        elif event.key == pygame.K_DOWN and self.lat > -85:  # DOWN_ARROW
+            self.lon -= LON_STEP * math.pow(2, 15 - self.z)
 
 
 def load_map(mp):
@@ -43,15 +55,18 @@ def load_map(mp):
 
 pygame.init()
 
-pygame.event.set_blocked(None)
-pygame.event.set_allowed((KEYDOWN, QUIT))
+pygame.event.set_blocked((MOUSEMOTION))
 
 
 screen = pygame.display.set_mode(size)
 
-pygame.display.update()
+pygame.event.clear()
 clock = pygame.time.Clock()
+
 mp = Map_params()
+map_file = load_map(mp)
+screen.blit(pygame.image.load(map_file), (0, 0))
+pygame.display.update()
 
 start = True
 running = True
@@ -61,10 +76,6 @@ while running:
         running = False
     elif event.type == pygame.KEYDOWN:
         mp.key_pressed(event)
-    elif start:
-        start = False
-    else:
-        continue
         
 
     map_file = load_map(mp)
